@@ -1,6 +1,11 @@
+import logging
 from pyrogram import Client, filters
 from pymongo import MongoClient
 import os
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Get environment variables
 API_ID = os.getenv("API_ID")
@@ -25,6 +30,7 @@ db = client[DATABASE_NAME]
 # Log the start
 @bot.on_message(filters.command(["start"]) & filters.private)
 async def start(client, message):
+    logger.info(f"Received /start from {message.from_user.id}")
     await message.reply_text(f"Hello {message.from_user.first_name}, I am a Movie Search Bot. Use /search <movie name> to find a movie.")
 
 # Search command
@@ -54,6 +60,9 @@ async def log_errors(client, message):
         pass
     except Exception as e:
         await client.send_message(LOG_CHANNEL, f"Error: {e}")
+        logger.error(f"Error: {e}")
 
 # Run the bot
-bot.run()
+if __name__ == "__main__":
+    logger.info("Starting bot...")
+    bot.run()
