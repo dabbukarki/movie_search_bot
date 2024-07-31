@@ -1,68 +1,85 @@
 import logging
-from pyrogram import Client, filters
-from pymongo import MongoClient
+import logging.config
 import os
+import asyncio
+from aiohttp import web
+from pyrogram import Client, __version__
+from pyrogram.raw.all import layer
+from pyrogram import types
+from typing import Union, Optional, AsyncGenerator
+from lazybot import LazyPrincessBot
+from lazybot.clients import initialize_clients
+from util.keepalive import ping_server
+from database.ia_filterdb import Media
+from database.users_chats_db import db
+from info import *
+from utils import temp
+from plugins import web_server
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logging.config.fileConfig('logging.conf')
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
+logging.getLogger("imdbpy").setLevel(logging.ERROR)
+logging.getLogger("aiohttp").setLevel(logging.ERROR)
+logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
-# Get environment variables
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-DATABASE_URI = os.getenv("DATABASE_URI")
-DATABASE_NAME = os.getenv("DATABASE_NAME")
-LOG_CHANNEL = os.getenv("LOG_CHANNEL")
+# Environment variables and constants
+PORT = "8080"
+DOWNLOAD_LOCATION = os.getenv('DOWNLOAD_LOCATION', './downloads')
+ON_HEROKU = os.getenv('ON_HEROKU', 'False') == 'True'
+BIND_ADRESS = os.getenv('BIND_ADRESS', '127.0.0.1')
 
 # Initialize the bot
 bot = Client(
     "movie_search_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
+    api_id=os.getenv("API_ID"),
+    api_hash=os.getenv("API_HASH"),
+    bot_token=os.getenv("BOT_TOKEN")
 )
 
-# Initialize MongoDB client
-client = MongoClient(DATABASE_URI)
-db = client[DATABASE_NAME]
+async def Lazy_start():
+    print('\nInitalizing Telegram Bot')
+    
+    if not os.path.isdir(DOWNLOAD_LOCATION):
+        os.makedirs(DOWNLOAD_LOCATION)
+        
+    bot_info = await LazyPrincessBot.get_me()
+    LazyPrincessBot.username = bot_info.username
+    await initialize_clients()
+    
+    if ON_HEROKU:
+        asyncio.create_task(ping_server())
+        
+    b_users, b_chats, lz_verified = await db.get_banned()
+    temp.BANNED_USERS = b_users
+    temp.BANNED_CHATS = b_chats
+    temp.LAZY_VERIFIED_CHATS = lz_verified
+    await Media.ensure_indexes()
+    
+    me = await LazyPrincessBot.get_me()
+    temp.ME = me.id
+    temp.U_NAME = me.username
+    temp.B_NAME = me.first_name
+    LazyPrincessBot.username = '@' + me.username
+    
+    app = web.AppRunner(await web_server())
+    await app.setup()
+    bind_address = "0.0.0.0" if ON_HEROKU else BIND_ADRESS
+    await web.TCPSite(app, bind_address, PORT).start()
+    
+    logging.info(f"{me.first_name} with Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
+    logging.info(LOG_STR)
+    await idle()
 
-# Log the start
-@bot.on_message(filters.command(["start"]) & filters.private)
-async def start(client, message):
-    logger.info(f"Received /start from {message.from_user.id}")
-    await message.reply_text(f"Hello {message.from_user.first_name}, I am a Movie Search Bot. Use /search <movie name> to find a movie.")
-
-# Search command
-@bot.on_message(filters.command(["search"]) & filters.private)
-async def search(client, message):
-    query = " ".join(message.command[1:])
-    if not query:
-        await message.reply_text("Please provide a movie name to search.")
-        return
-
-    results = db.movies.find({"title": {"$regex": query, "$options": "i"}})
-
-    if results.count() == 0:
-        await message.reply_text("No movies found matching your query.")
-    else:
-        response = ""
-        for movie in results:
-            response += f"Title: {movie['title']}\nYear: {movie['year']}\nRating: {movie['rating']}\n\n"
-
-        await message.reply_text(response)
-
-# Log any errors
-@bot.on_message(filters.private)
-async def log_errors(client, message):
+if __name__ == '__main__':
     try:
-        # Process message
-        pass
-    except Exception as e:
-        await client.send_message(LOG_CHANNEL, f"Error: {e}")
-        logger.error(f"Error: {e}")
-
-# Run the bot
-if __name__ == "__main__":
-    logger.info("Starting bot...")
-    bot.run()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(Lazy_start())
+        logging.info('-----------------------🧐 Service running in Lazy Mode 😴-----------------------')
+    except KeyboardInterrupt:
+        logging.info('-----------------------😜 Service Stopped Sweetheart 😝-----------------------')
