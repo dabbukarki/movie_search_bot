@@ -64,6 +64,10 @@ lazy_renamers = [int(lazrenamers) if id_pattern.search(lazrenamers) else lazrena
 LAZY_RENAMERS = lazy_renamers + ADMINS if lazy_renamers else []  # Add user IDs for file renaming features
 LZURL_PRIME_USERS = [int(lazyurlers) if id_pattern.search(lazyurlers) else lazyurlers for lazyurlers in environ.get('LZURL_PRIME_USERS', '5965340120').split()]
 
+# New Configuration
+MAX_B_TN = int(environ.get('MAX_B_TN', 100))
+MAX_BTN = int(environ.get('MAX_BTN', 10))
+
 QR_CODE_IMG = environ.get('QR_CODE_IMG', 'https://telegra.ph/file/342a2e9bd3ef5100c4c0e.jpg')  # URL link of QR code for receiving money
 UPI_ID = environ.get('UPI_ID', '8607706913@kotak')  # Your UPI ID
 
@@ -108,5 +112,4 @@ my_users = [int(my_users) for my_users in environ.get('MY_USERS', '').split() if
 # Don't touch below
 PLUGINS_DIR = environ.get("PLUGINS_DIR", "plugins")
 
-# New Configuration
-MAX_B_TN = int(environ.get('MAX_B_TN', 100))
+
