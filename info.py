@@ -101,18 +101,7 @@ DEV_CHANNEL_USRNM = environ.get('DEV_CHANNEL_USRNM', 'kobraseries')  # WITHOUT @
 LAZY_YT_HANDLE = environ.get('LAZY_YT_HANDLE', 'kobraseries')  # WITHOUT @ (Add only handle, not full URL)
 MOVIE_GROUP_USERNAME = environ.get('MOVIE_GROUP_USERNAME', "kobrachatgroup")  # WITHOUT @
 
-# URL Shortner
 
-import os
-
-# Ensure that this import doesn't cause circular imports by moving it inside functions
-def get_url_shortener_website():
-    from other_module import URL_SHORTENER_WEBSITE  # Import inside function to avoid circular import
-    return URL_SHORTENER_WEBSITE
-
-# Constants and environment variable settings
-URL_SHORTENER_WEBSITE = os.environ.get('URL_SHORTENER_WEBSITE', 'atglinks.com')
-URL_SHORTENER_WEBSITE_API = os.environ.get('URL_SHORTENER_WEBSITE_API', '83463cceb867a14dca0832e2fdeacfba75079dd8002b8956c6da67f21289ddcdf006726cd6e4e6af393ad7bf790f09d1')
 
 # Ensure that `is_enabled` function is defined somewhere in your code
 URL_MODE = is_enabled(os.environ.get("URL_MODE", "True"), False)
