@@ -107,3 +107,6 @@ my_users = [int(my_users) for my_users in environ.get('MY_USERS', '').split() if
 
 # Don't touch below
 PLUGINS_DIR = environ.get("PLUGINS_DIR", "plugins")
+
+# New Configuration
+MAX_B_TN = int(environ.get('MAX_B_TN', 100))
