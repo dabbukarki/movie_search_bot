@@ -102,12 +102,28 @@ LAZY_YT_HANDLE = environ.get('LAZY_YT_HANDLE', 'kobraseries')  # WITHOUT @ (Add 
 MOVIE_GROUP_USERNAME = environ.get('MOVIE_GROUP_USERNAME', "kobrachatgroup")  # WITHOUT @
 
 # URL Shortner
-URL_MODE = is_enabled(environ.get("URL_MODE", "True"), False)  # Enable URL shortener in groups or PM
-URL_SHORTENER_WEBSITE = environ.get('URL_SHORTENER_WEBSITE', 'atglinks.com')  # Use website URL from API section
-URL_SHORTENER_WEBSITE_API = environ.get('URL_SHORTENER_WEBSITE_API', '83463cceb867a14dca0832e2fdeacfba75079dd8002b8956c6da67f21289ddcdf006726cd6e4e6af393ad7bf790f09d1')
-lazy_groups = environ.get('LAZY_GROUPS', '')
-LAZY_GROUPS = [int(lazy_groups) for lazy_groups in lazy_groups.split()] if lazy_groups else None  # Add group IDs
-my_users = [int(my_users) for my_users in environ.get('MY_USERS', '').split() if my_users.isdigit()]  # Add user IDs to perform operations
+
+import os
+
+# Ensure that this import doesn't cause circular imports by moving it inside functions
+def get_url_shortener_website():
+    from other_module import URL_SHORTENER_WEBSITE  # Import inside function to avoid circular import
+    return URL_SHORTENER_WEBSITE
+
+# Constants and environment variable settings
+URL_SHORTENER_WEBSITE = os.environ.get('URL_SHORTENER_WEBSITE', 'atglinks.com')
+URL_SHORTENER_WEBSITE_API = os.environ.get('URL_SHORTENER_WEBSITE_API', '83463cceb867a14dca0832e2fdeacfba75079dd8002b8956c6da67f21289ddcdf006726cd6e4e6af393ad7bf790f09d1')
+
+# Ensure that `is_enabled` function is defined somewhere in your code
+URL_MODE = is_enabled(os.environ.get("URL_MODE", "True"), False)
+
+lazy_groups = os.environ.get('LAZY_GROUPS', '')
+LAZY_GROUPS = [int(id) for id in lazy_groups.split() if id.isdigit()] if lazy_groups else None
+
+my_users = os.environ.get('MY_USERS', '')
+MY_USERS = [int(id) for id in my_users.split() if id.isdigit()]
+
+
 
 # Don't touch below
 PLUGINS_DIR = environ.get("PLUGINS_DIR", "plugins")
