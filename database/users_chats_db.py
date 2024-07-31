@@ -155,8 +155,6 @@ class Database:
             'welcome': MELCOW_NEW_USERS,
             'template': IMDB_TEMPLATE,
             'max_btn': MAX_BTN,
-            'shortlink': URL_SHORTENR_WEBSITE,
-            'shortlink_api': URL_SHORTNER_WEBSITE_API,
             'url_mode': URL_MODE,
             'tutorial': TUTORIAL,
             'is_tutorial': IS_TUTORIAL
