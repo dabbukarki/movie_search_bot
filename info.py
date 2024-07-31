@@ -1,8 +1,6 @@
 import re
-from os import getenv
-from os import environ
+from os import getenv, environ
 import logging
-from info import URL_SHORTNER_WEBSITE
 
 # Set up logging configuration
 logging.basicConfig(
@@ -113,5 +111,3 @@ my_users = [int(my_users) for my_users in environ.get('MY_USERS', '').split() if
 
 # Don't touch below
 PLUGINS_DIR = environ.get("PLUGINS_DIR", "plugins")
-
-
