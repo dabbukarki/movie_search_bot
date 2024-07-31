@@ -2,6 +2,7 @@ import re
 from os import getenv
 from os import environ
 import logging
+from info import URL_SHORTNER_WEBSITE
 
 # Set up logging configuration
 logging.basicConfig(
