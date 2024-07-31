@@ -103,8 +103,7 @@ MOVIE_GROUP_USERNAME = environ.get('MOVIE_GROUP_USERNAME', "kobrachatgroup")  # 
 
 
 
-# Ensure that `is_enabled` function is defined somewhere in your code
-URL_MODE = is_enabled(os.environ.get("URL_MODE", "True"), False)
+
 
 lazy_groups = os.environ.get('LAZY_GROUPS', '')
 LAZY_GROUPS = [int(id) for id in lazy_groups.split() if id.isdigit()] if lazy_groups else None
